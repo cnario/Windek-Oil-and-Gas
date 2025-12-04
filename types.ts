@@ -9,6 +9,7 @@ export interface ServiceItem {
   title: string;
   items: string[];
   icon: LucideIcon;
+  image: string;
 }
 
 export interface ValueItem {

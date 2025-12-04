@@ -3,6 +3,21 @@ import { ArrowRight, ChevronDown } from 'lucide-react';
 import { TAGLINE } from '../constants';
 
 const Hero: React.FC = () => {
+  const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    const element = document.getElementById(id);
+    if (element) {
+      const headerOffset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+    }
+  };
+
   return (
     <section id="home" className="relative h-screen min-h-[700px] flex items-center bg-windek-dark overflow-hidden">
       {/* Background with darker, more sophisticated overlay */}
@@ -34,11 +49,19 @@ const Hero: React.FC = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-5">
-              <a href="#projects" className="group inline-flex items-center justify-center px-8 py-4 bg-windek-blue text-white text-sm font-bold tracking-wide rounded hover:bg-sky-500 transition-all shadow-lg shadow-sky-900/50">
+              <a 
+                href="#projects" 
+                onClick={(e) => handleScrollTo(e, 'projects')}
+                className="group inline-flex items-center justify-center px-8 py-4 bg-windek-blue text-white text-sm font-bold tracking-wide rounded hover:bg-sky-500 transition-all shadow-lg shadow-sky-900/50"
+              >
                 Explore Projects
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </a>
-              <a href="#contact" className="group inline-flex items-center justify-center px-8 py-4 border border-white/20 bg-white/5 backdrop-blur-sm text-white text-sm font-bold tracking-wide rounded hover:bg-white hover:text-windek-dark transition-all">
+              <a 
+                href="#contact" 
+                onClick={(e) => handleScrollTo(e, 'contact')}
+                className="group inline-flex items-center justify-center px-8 py-4 border border-white/20 bg-white/5 backdrop-blur-sm text-white text-sm font-bold tracking-wide rounded hover:bg-white hover:text-windek-dark transition-all"
+              >
                 Contact Us
               </a>
             </div>

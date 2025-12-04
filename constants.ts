@@ -64,6 +64,7 @@ export const SERVICES: ServiceItem[] = [
   {
     title: "Upstream Operations",
     icon: Drill,
+    image: "https://www.coastalcrestenergyltd.com/images/folio/10.jpg", // Drilling/Rig visual
     items: [
       "Onshore/offshore well design and drilling",
       "Completion and workover services",
@@ -74,6 +75,7 @@ export const SERVICES: ServiceItem[] = [
   {
     title: "Midstream & LPG Infrastructure",
     icon: Factory,
+    image: "https://www.coastalcrestenergyltd.com/images/folio/11.jpg", // Industrial piping/tanks
     items: [
       "LPG storage and terminal development",
       "Terminal construction and operations",
@@ -84,6 +86,7 @@ export const SERVICES: ServiceItem[] = [
   {
     title: "Engineering & Logistics",
     icon: Anchor,
+    image: "https://www.coastalcrestenergyltd.com/images/folio/13.jpg", // Heavy engineering/logistics
     items: [
       "Engineering, Procurement, Construction & Installation",
       "Fabrication and modular construction",

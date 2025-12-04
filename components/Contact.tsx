@@ -1,25 +1,33 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { CONTACT_INFO } from '../constants';
 import { CheckCircle, Loader2 } from 'lucide-react';
 
 const Contact: React.FC = () => {
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    // We do NOT preventDefault here. We want the form to actually submit to the iframe.
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setStatus('submitting');
-    console.log("--- Form Submission Started (Method: Hidden Iframe) ---");
-  };
+    
+    const formData = new FormData(e.currentTarget);
+    
+    try {
+      const response = await fetch("https://formsubmit.co/ajax/info@windekoilandgasltd.com", {
+        method: "POST",
+        body: formData,
+        headers: {
+            'Accept': 'application/json'
+        }
+      });
 
-  const handleIframeLoad = () => {
-    // This function runs when the iframe finishes loading the response from FormSubmit
-    if (status === 'submitting') {
-      console.log("--- Iframe Loaded: Submission Likely Successful ---");
-      setStatus('success');
-      // Optional: Reset form after success
-      if (formRef.current) formRef.current.reset();
+      if (response.ok) {
+        setStatus('success');
+      } else {
+        setStatus('error');
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+      setStatus('error');
     }
   };
 
@@ -52,15 +60,6 @@ const Contact: React.FC = () => {
 
           <div className="bg-white rounded-sm p-8 lg:p-12 relative overflow-hidden min-h-[600px] flex flex-col justify-center">
              
-             {/* Hidden Iframe for Submission Target */}
-             <iframe 
-                name="hidden_iframe" 
-                id="hidden_iframe" 
-                ref={iframeRef}
-                onLoad={handleIframeLoad}
-                style={{ display: 'none' }} 
-             ></iframe>
-
              {/* Success View */}
              <div className={`absolute inset-0 z-10 bg-white flex flex-col items-center justify-center p-8 text-center transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${status === 'success' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
                 <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-6 animate-[bounce_1s_ease-in-out_1]">
@@ -82,40 +81,39 @@ const Contact: React.FC = () => {
             <div className={`transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${status === 'success' ? 'opacity-0 -translate-y-8 pointer-events-none' : 'opacity-100 translate-y-0'}`}>
                 <h3 className="text-windek-dark text-2xl font-bold mb-6">Send a Message</h3>
                 
-                <form 
-                    ref={formRef}
-                    action={`https://formsubmit.co/${CONTACT_INFO.email}`} 
-                    method="POST" 
-                    target="hidden_iframe"
-                    onSubmit={handleSubmit} 
-                    className="space-y-6"
-                >
-                    {/* Hidden Configuration Fields */}
-                    <input type="hidden" name="_captcha" value="false" />
-                    <input type="hidden" name="_subject" value="New Website Inquiry" />
-                    <input type="hidden" name="_template" value="table" />
-                    {/* Honeypot for Anti-Spam */}
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Honeypot Field (Anti-Spam) */}
                     <input type="text" name="_honey" style={{ display: 'none' }} />
+                    
+                    {/* Subject Field */}
+                    <input type="hidden" name="_subject" value="New Website Inquiry" />
+                    <input type="hidden" name="_captcha" value="false" />
 
                     <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <label htmlFor="firstName" className="text-xs font-bold text-gray-500 uppercase tracking-wide">First Name</label>
-                            <input required name="firstName" type="text" className="w-full bg-gray-50 border-b-2 border-gray-200 p-3 text-windek-dark focus:border-windek-blue focus:outline-none transition-colors" />
+                            <input required name="firstName" type="text" disabled={status === 'submitting'} className="w-full bg-gray-50 border-b-2 border-gray-200 p-3 text-windek-dark focus:border-windek-blue focus:outline-none transition-colors disabled:opacity-50" />
                         </div>
                         <div className="space-y-2">
                             <label htmlFor="lastName" className="text-xs font-bold text-gray-500 uppercase tracking-wide">Last Name</label>
-                            <input required name="lastName" type="text" className="w-full bg-gray-50 border-b-2 border-gray-200 p-3 text-windek-dark focus:border-windek-blue focus:outline-none transition-colors" />
+                            <input required name="lastName" type="text" disabled={status === 'submitting'} className="w-full bg-gray-50 border-b-2 border-gray-200 p-3 text-windek-dark focus:border-windek-blue focus:outline-none transition-colors disabled:opacity-50" />
                         </div>
                     </div>
                     <div className="space-y-2">
                         <label htmlFor="email" className="text-xs font-bold text-gray-500 uppercase tracking-wide">Email Address</label>
-                        <input required name="email" type="email" className="w-full bg-gray-50 border-b-2 border-gray-200 p-3 text-windek-dark focus:border-windek-blue focus:outline-none transition-colors" />
+                        <input required name="email" type="email" disabled={status === 'submitting'} className="w-full bg-gray-50 border-b-2 border-gray-200 p-3 text-windek-dark focus:border-windek-blue focus:outline-none transition-colors disabled:opacity-50" />
                     </div>
                     <div className="space-y-2">
                         <label htmlFor="message" className="text-xs font-bold text-gray-500 uppercase tracking-wide">Inquiry</label>
-                        <textarea required name="message" rows={3} className="w-full bg-gray-50 border-b-2 border-gray-200 p-3 text-windek-dark focus:border-windek-blue focus:outline-none transition-colors"></textarea>
+                        <textarea required name="message" rows={3} disabled={status === 'submitting'} className="w-full bg-gray-50 border-b-2 border-gray-200 p-3 text-windek-dark focus:border-windek-blue focus:outline-none transition-colors disabled:opacity-50"></textarea>
                     </div>
                     
+                    {status === 'error' && (
+                        <div className="p-3 bg-red-50 text-red-600 text-sm rounded">
+                            Something went wrong. Please try again or email us directly.
+                        </div>
+                    )}
+
                     <button 
                         type="submit" 
                         disabled={status === 'submitting'}

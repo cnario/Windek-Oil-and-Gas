@@ -18,10 +18,38 @@ export const TAGLINE = "Delivering Sustainable Energy Solutions through Operatio
 export const NAV_ITEMS: NavItem[] = [
   { label: "Home", href: "#home" },
   { label: "About", href: "#about" },
+  { label: "Team", href: "#team" },
   { label: "Services", href: "#services" },
   { label: "Projects", href: "#projects" },
   { label: "ESG", href: "#esg" },
   { label: "Contact", href: "#contact" },
+];
+
+export const TEAM_MEMBERS = [
+  {
+    name: "Emmanuel Uwandu",
+    role: "Chief Operating Officer",
+    image: "https://www.coastalcrestenergyltd.com/images/team/2.jpg",
+    bio: "Over 10 years of experience in the Oil & Gas sector, leading strategic operations and expansion."
+  },
+  {
+    name: "Motunrayo Adeogun",
+    role: "Head of Business Development",
+    image: "https://www.coastalcrestenergyltd.com/images/team/3.jpg",
+    bio: "Driving growth strategies and managing stakeholder relationships across the energy value chain."
+  },
+  {
+    name: "Joy Makanjuola",
+    role: "Head of Human Resources",
+    image: "https://www.coastalcrestenergyltd.com/images/team/4.jpg",
+    bio: "Specializes in EPCI project delivery and engineering standards compliance."
+  },
+  {
+    name: "Dorcas Oloniyo",
+    role: "Head of Account",
+    image: "https://www.coastalcrestenergyltd.com/images/team/3.jpg",
+    bio: "Driving growth strategies and managing stakeholder relationships across the energy value chain."
+  }
 ];
 
 export const CORE_VALUES: ValueItem[] = [

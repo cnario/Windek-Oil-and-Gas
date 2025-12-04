@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CONTACT_INFO } from '../constants';
 import { CheckCircle, Loader2 } from 'lucide-react';
 
 const Contact: React.FC = () => {
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [mountTime, setMountTime] = useState<number>(0);
+
+  useEffect(() => {
+    // Record when the component mounts for the speed check
+    setMountTime(Date.now());
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -11,22 +17,35 @@ const Contact: React.FC = () => {
     
     const formData = new FormData(e.currentTarget);
     
+    // Construct payload matching the backend expectations
+    const payload = {
+        name: `${formData.get('firstName')} ${formData.get('lastName')}`,
+        email: formData.get('email'),
+        message: formData.get('message'),
+        website: formData.get('website'), // Honeypot field
+        form_time: mountTime
+    };
+    
     try {
-      const response = await fetch("https://formsubmit.co/ajax/info@windekoilandgasltd.com", {
+      const response = await fetch("/api/send", {
         method: "POST",
-        body: formData,
+        body: JSON.stringify(payload),
         headers: {
+            'Content-Type': 'application/json',
             'Accept': 'application/json'
         }
       });
 
-      if (response.ok) {
+      const result = await response.json();
+
+      if (response.ok && result.ok) {
         setStatus('success');
       } else {
+        console.error("Submission failed:", result);
         setStatus('error');
       }
     } catch (error) {
-      console.error("Submission error:", error);
+      console.error("Network error:", error);
       setStatus('error');
     }
   };
@@ -82,13 +101,9 @@ const Contact: React.FC = () => {
                 <h3 className="text-windek-dark text-2xl font-bold mb-6">Send a Message</h3>
                 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Honeypot Field (Anti-Spam) */}
-                    <input type="text" name="_honey" style={{ display: 'none' }} />
+                    {/* Hidden Honeypot Field (Anti-Spam) - matched to backend 'website' expectation */}
+                    <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" style={{ display: 'none' }} />
                     
-                    {/* Subject Field */}
-                    <input type="hidden" name="_subject" value="New Website Inquiry" />
-                    <input type="hidden" name="_captcha" value="false" />
-
                     <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <label htmlFor="firstName" className="text-xs font-bold text-gray-500 uppercase tracking-wide">First Name</label>
@@ -110,7 +125,7 @@ const Contact: React.FC = () => {
                     
                     {status === 'error' && (
                         <div className="p-3 bg-red-50 text-red-600 text-sm rounded">
-                            Something went wrong. Please try again or email us directly.
+                            Something went wrong. Please try again or email us directly at {CONTACT_INFO.email}.
                         </div>
                     )}
 

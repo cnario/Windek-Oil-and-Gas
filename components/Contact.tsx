@@ -10,14 +10,17 @@ const Contact: React.FC = () => {
     setStatus('submitting');
     
     const formData = new FormData(e.currentTarget);
+    const object = Object.fromEntries(formData.entries());
+    const json = JSON.stringify(object);
     
     try {
       const response = await fetch("https://formsubmit.co/ajax/info@windekoilandgasltd.com", {
         method: "POST",
-        body: formData,
-        headers: {
-            'Accept': 'application/json'
-        }
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: json
       });
 
       if (response.ok) {
@@ -110,7 +113,7 @@ const Contact: React.FC = () => {
                     
                     {status === 'error' && (
                         <div className="p-3 bg-red-50 text-red-600 text-sm rounded">
-                            Something went wrong. Please try again or email us directly.
+                            Something went wrong. Please try again or <a href={`mailto:${CONTACT_INFO.email}`} className="underline">email us directly</a>.
                         </div>
                     )}
 

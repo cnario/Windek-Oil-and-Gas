@@ -7,29 +7,64 @@ const Contact: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log("--- Form Submission Started ---");
     setStatus('submitting');
     
+    // 1. Prepare Data
     const formData = new FormData(e.currentTarget);
     const object = Object.fromEntries(formData.entries());
     const json = JSON.stringify(object);
     
+    console.log("1. Payload Prepared:", object);
+
+    // 2. Setup Timeout (30 seconds) to prevent infinite hanging
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+        console.error("Request timed out after 30 seconds");
+        controller.abort();
+    }, 30000);
+
     try {
+      console.log("2. Sending request to FormSubmit endpoint...");
       const response = await fetch("https://formsubmit.co/ajax/info@windekoilandgasltd.com", {
         method: "POST",
         headers: { 
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: json
+        body: json,
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId); // Clear timeout if response received
+      console.log("3. Response received. HTTP Status:", response.status);
+
+      // Try to parse JSON response
+      let result;
+      try {
+          result = await response.json();
+          console.log("4. Response Body:", result);
+      } catch (jsonError) {
+          console.error("4. Failed to parse response JSON:", jsonError);
+          // If JSON fails, try text to see what happened
+          const text = await response.text(); 
+          console.log("Raw Response Text:", text);
+      }
 
       if (response.ok) {
+        console.log("5. Submission SUCCESS");
         setStatus('success');
       } else {
+        console.error("5. Submission FAILED with status:", response.status);
         setStatus('error');
       }
-    } catch (error) {
-      console.error("Submission error:", error);
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      if (error.name === 'AbortError') {
+          console.error("--- Error: Request Timed Out ---");
+      } else {
+          console.error("--- Error: Network or Fetch Error ---", error);
+      }
       setStatus('error');
     }
   };
@@ -112,8 +147,10 @@ const Contact: React.FC = () => {
                     </div>
                     
                     {status === 'error' && (
-                        <div className="p-3 bg-red-50 text-red-600 text-sm rounded">
-                            Something went wrong. Please try again or <a href={`mailto:${CONTACT_INFO.email}`} className="underline">email us directly</a>.
+                        <div className="p-3 bg-red-50 text-red-600 text-sm rounded border border-red-100">
+                            <p className="font-bold">Submission Error</p>
+                            <p>Please check the console (F12) for debugging details.</p>
+                            <p className="mt-1">Alternatively, <a href={`mailto:${CONTACT_INFO.email}`} className="underline">email us directly</a>.</p>
                         </div>
                     )}
 

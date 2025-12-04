@@ -44,7 +44,8 @@ export default async function handler(req, res) {
         pass: process.env.SMTP_PASS
       },
       tls: {
-        rejectUnauthorized: process.env.MAILU_TLS_REJECT_UNAUTHORIZED !== 'false'
+        // Explicitly allow expired/self-signed certificates to fix handshake errors
+        rejectUnauthorized: false
       }
     });
 

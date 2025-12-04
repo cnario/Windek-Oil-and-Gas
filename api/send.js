@@ -1,6 +1,6 @@
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'Method Not Allowed' });
   }
@@ -8,16 +8,15 @@ module.exports = async function handler(req, res) {
   try {
     const { name, email, phone, message, website, form_time } = req.body || {};
 
-    // 1) Honeypot: silently drop if filled (return success so bots get no feedback)
+    // 1) Honeypot: silently drop if filled
     if (website && String(website).trim() !== '') {
       console.warn('Honeypot triggered. Dropping submission.', { website });
       return res.status(200).json({ ok: true, message: 'Message sent' });
     }
 
-    // 2) Speed check: if submitted too quickly (<5s), treat as bot and silently drop
+    // 2) Speed check: if submitted too quickly (<5s), treat as bot
     const now = Date.now();
     let loadedAt = parseInt(form_time, 10) || now;
-    // Normalize seconds -> ms if necessary
     if (loadedAt > 0 && loadedAt < 1e12 && loadedAt < 1e11) loadedAt = loadedAt * 1000;
     if (!loadedAt || loadedAt <= 0) loadedAt = now;
     const delta = now - loadedAt;
@@ -34,7 +33,6 @@ module.exports = async function handler(req, res) {
     }
 
     // Configure nodemailer transporter
-    // Expects environment variables: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT || 587),

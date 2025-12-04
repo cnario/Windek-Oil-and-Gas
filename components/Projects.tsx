@@ -9,7 +9,7 @@ const Projects: React.FC = () => {
         {/* Visual Side */}
         <div className="relative h-96 lg:h-auto bg-gray-900 group overflow-hidden">
           <img 
-            src="https://images.unsplash.com/photo-1457139621581-cad090d56566?q=80&w=1600&auto=format&fit=crop" 
+            src="https://i0.wp.com/www.mctimothyassociates.com/wp-content/uploads/2023/12/Oil-and-Gas-Storage-terminal-large.jpg" 
             alt="Refinery Infrastructure at Sunset" 
             className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
           />

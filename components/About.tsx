@@ -45,7 +45,7 @@ const About: React.FC = () => {
           <div className="order-1 lg:order-2 relative">
             <div className="relative z-10 rounded-lg overflow-hidden shadow-2xl shadow-slate-200">
               <img 
-                src=""https://www.coastalcrestenergyltd.com/images/bg/9.jpg 
+                src="https://www.coastalcrestenergyltd.com/images/bg/9.jpg" 
                 alt="Oil and Gas Engineers" 
                 className="w-full h-auto object-cover"
               />

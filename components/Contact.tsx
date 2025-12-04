@@ -1,23 +1,25 @@
 import React, { useState } from 'react';
 import { CONTACT_INFO } from '../constants';
-import { CheckCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 
 const Contact: React.FC = () => {
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("--- Form Submission Started ---");
+    console.log("--- Form Submission Started (Attempt 2: FormData) ---");
     setStatus('submitting');
+    setErrorMessage('');
     
-    // 1. Prepare Data
+    // 1. Prepare Data using FormData (Standard for forms)
     const formData = new FormData(e.currentTarget);
-    const object = Object.fromEntries(formData.entries());
-    const json = JSON.stringify(object);
     
-    console.log("1. Payload Prepared:", object);
+    // Log keys for debugging
+    const dataObj = Object.fromEntries(formData.entries());
+    console.log("1. Payload Prepared (FormData converted to Obj for log):", dataObj);
 
-    // 2. Setup Timeout (30 seconds) to prevent infinite hanging
+    // 2. Setup Timeout (30 seconds)
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
         console.error("Request timed out after 30 seconds");
@@ -25,45 +27,39 @@ const Contact: React.FC = () => {
     }, 30000);
 
     try {
-      console.log("2. Sending request to FormSubmit endpoint...");
-      const response = await fetch("https://formsubmit.co/ajax/info@windekoilandgasltd.com", {
+      console.log("2. Sending request to FormSubmit (Standard Endpoint with JSON Accept header)...");
+      
+      // Using standard endpoint with Accept header often works better than /ajax/ alias
+      const response = await fetch(`https://formsubmit.co/${CONTACT_INFO.email}`, {
         method: "POST",
         headers: { 
-          'Content-Type': 'application/json',
           'Accept': 'application/json'
+          // Note: Content-Type is NOT set manually so browser can set boundary for FormData
         },
-        body: json,
+        body: formData,
         signal: controller.signal
       });
       
-      clearTimeout(timeoutId); // Clear timeout if response received
+      clearTimeout(timeoutId);
       console.log("3. Response received. HTTP Status:", response.status);
 
-      // Try to parse JSON response
-      let result;
-      try {
-          result = await response.json();
-          console.log("4. Response Body:", result);
-      } catch (jsonError) {
-          console.error("4. Failed to parse response JSON:", jsonError);
-          // If JSON fails, try text to see what happened
-          const text = await response.text(); 
-          console.log("Raw Response Text:", text);
-      }
-
       if (response.ok) {
-        console.log("5. Submission SUCCESS");
+        console.log("4. Submission SUCCESS");
         setStatus('success');
       } else {
-        console.error("5. Submission FAILED with status:", response.status);
+        const text = await response.text();
+        console.error("4. Submission FAILED. Body:", text);
+        setErrorMessage(`Server responded with ${response.status}`);
         setStatus('error');
       }
     } catch (error: any) {
       clearTimeout(timeoutId);
       if (error.name === 'AbortError') {
           console.error("--- Error: Request Timed Out ---");
+          setErrorMessage("Connection timed out. The server took too long to respond.");
       } else {
           console.error("--- Error: Network or Fetch Error ---", error);
+          setErrorMessage("Network error occurred. Please check your connection.");
       }
       setStatus('error');
     }
@@ -125,6 +121,7 @@ const Contact: React.FC = () => {
                     
                     {/* Subject Field */}
                     <input type="hidden" name="_subject" value="New Website Inquiry" />
+                    <input type="hidden" name="_template" value="table" />
                     <input type="hidden" name="_captcha" value="false" />
 
                     <div className="grid grid-cols-2 gap-6">
@@ -147,10 +144,13 @@ const Contact: React.FC = () => {
                     </div>
                     
                     {status === 'error' && (
-                        <div className="p-3 bg-red-50 text-red-600 text-sm rounded border border-red-100">
-                            <p className="font-bold">Submission Error</p>
-                            <p>Please check the console (F12) for debugging details.</p>
-                            <p className="mt-1">Alternatively, <a href={`mailto:${CONTACT_INFO.email}`} className="underline">email us directly</a>.</p>
+                        <div className="p-4 bg-red-50 text-red-700 text-sm rounded border border-red-100 flex items-start gap-3">
+                            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+                            <div>
+                                <p className="font-bold">Submission Failed</p>
+                                <p className="mb-2">{errorMessage}</p>
+                                <p>Please <a href={`mailto:${CONTACT_INFO.email}`} className="underline font-bold hover:text-red-900">email us directly</a> at {CONTACT_INFO.email}.</p>
+                            </div>
                         </div>
                     )}
 

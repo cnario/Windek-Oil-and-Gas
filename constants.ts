@@ -47,8 +47,8 @@ export const TEAM_MEMBERS = [
   {
     name: "Dorcas Oloniyo",
     role: "Head of Account",
-    image: "https://www.coastalcrestenergyltd.com/images/team/3.jpg",
-    bio: "Driving growth strategies and managing stakeholder relationships across the energy value chain."
+    image: "https://www.coastalcrestenergyltd.com/images/team/5.jpg",
+    bio: "Driving growth strategies and managing stakeholder relationships across the energy value chain. "
   }
 ];
 

@@ -1,4 +1,6 @@
-import nodemailer from 'nodemailer';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const nodemailer = require('nodemailer');
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -50,7 +52,7 @@ export default async function handler(req, res) {
       await transporter.verify();
     } catch (vErr) {
       console.error('SMTP verify failed:', vErr);
-      return res.status(500).json({ ok: false, error: 'SMTP Configuration Error' });
+      return res.status(500).json({ ok: false, error: 'SMTP Configuration Error', details: vErr.message });
     }
 
     const fromAddress = process.env.FROM_EMAIL || process.env.SMTP_USER;
@@ -76,4 +78,4 @@ export default async function handler(req, res) {
     console.error('Handler error:', err);
     return res.status(500).json({ ok: false, error: 'Server error', details: String(err) });
   }
-};
+}

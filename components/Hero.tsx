@@ -1,8 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowRight, ChevronDown } from 'lucide-react';
-import { TAGLINE } from '../constants';
+import { TAGLINE, SERVICES } from '../constants';
 
 const Hero: React.FC = () => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  // Use images from the services section for the slideshow
+  const backgroundImages = SERVICES.map(service => service.image);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % backgroundImages.length);
+    }, 5000); // Switch every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [backgroundImages.length]);
+
   const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
     const element = document.getElementById(id);
@@ -20,13 +33,26 @@ const Hero: React.FC = () => {
 
   return (
     <section id="home" className="relative h-screen min-h-[700px] flex items-center bg-windek-dark overflow-hidden">
-      {/* Background with darker, more sophisticated overlay */}
+      {/* Background Slideshow */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src="https://images.unsplash.com/photo-1566415777977-33e36dfa996d?q=80&w=2000&auto=format&fit=crop" 
-          alt="Offshore Oil Platform" 
-          className="w-full h-full object-cover scale-105 animate-[pulse_20s_infinite_alternate] transition-transform duration-[20s]"
-        />
+        {backgroundImages.map((img, index) => (
+          <div 
+            key={index}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            <img 
+              src={img} 
+              alt={`Windek Background ${index + 1}`} 
+              className={`w-full h-full object-cover transition-transform duration-[10000ms] ease-linear ${
+                index === currentImageIndex ? 'scale-110' : 'scale-100'
+              }`}
+            />
+          </div>
+        ))}
+        
+        {/* Overlays */}
         <div className="absolute inset-0 bg-gradient-to-r from-windek-dark/95 via-windek-dark/80 to-windek-dark/30" />
         <div className="absolute inset-0 bg-gradient-to-t from-windek-dark via-transparent to-transparent" />
       </div>
